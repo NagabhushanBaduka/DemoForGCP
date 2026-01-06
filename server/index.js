@@ -1,3 +1,4 @@
+require('dotenv').config();
 const keys = require("./keys");
 
 // Express Application setup
@@ -26,24 +27,35 @@ pgClient.on("connect", client => {
 });
 
 //Express route definitions
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
   res.send("Hi");
 });
 
 // get the values
-app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * FROM values");
-
-  res.send(values);
+app.get("/api/values/all", async (req, res) => {
+  try {
+    const values = await pgClient.query("SELECT * FROM values");
+    res.send(values);
+  } catch (err) {
+    console.error("Error fetching values:", err);
+    res.status(500).send({ error: "Database error" });
+  }
 });
 
 // now the post -> insert value
-app.post("/values", async (req, res) => {
-  if (!req.body.value) res.send({ working: false });
+app.post("/api/values", async (req, res) => {
+  const value = req.body.value;
+  if (!value) {
+    return res.status(400).send({ working: false, error: "Value is required" });
+  }
 
-  pgClient.query("INSERT INTO values(number) VALUES($1)", [req.body.value]);
-
-  res.send({ working: true });
+  try {
+    await pgClient.query("INSERT INTO values(number) VALUES($1)", [value]);
+    res.send({ working: true });
+  } catch (err) {
+    console.error("Error inserting value:", err);
+    res.status(500).send({ error: "Database error" });
+  }
 });
 
 app.listen(5000, err => {

@@ -1,0 +1,14 @@
+{
+    "name": "multicontainer-app",
+    "version": "1.0.0",
+    "description": "Root package for running client and server locally",
+    "scripts": {
+        "install:all": "npm install --prefix client && npm install --prefix server",
+        "server": "npm run dev --prefix server",
+        "client": "npm build --prefix client && npm start --prefix client",
+        "dev": "NODE_OPTIONS=--openssl-legacy-provider concurrently \"npm run server\" \"npm start --prefix client\""
+    },
+    "devDependencies": {
+        "concurrently": "^6.5.1"
+    }
+}
