@@ -6,8 +6,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const morgan = require("morgan");
+
 const app = express();
 app.use(cors());
+app.use(morgan("dev"));
 app.use(bodyParser.json());
 
 // Postgres client setup
@@ -44,8 +47,9 @@ app.get("/api/values/all", async (req, res) => {
 
 // now the post -> insert value
 app.post("/api/values", async (req, res) => {
+  console.log("POST /api/values called with:", req.body);
   const value = req.body.value;
-  if (!value) {
+  if (value === undefined || value === null || value === "") {
     return res.status(400).send({ working: false, error: "Value is required" });
   }
 

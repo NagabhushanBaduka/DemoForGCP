@@ -1,30 +1,38 @@
-version: "3"
 services:
   postgres:
-    image: "postgres:latest"
+    image: postgres:13-alpine
     environment:
-      - POSTGRES_PASSWORD=postgres_password
-  nginx:
-    depends_on:
-      - api
-      - client
-    restart: always
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
-    ports:
-      - "80:80"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   api:
     build:
+      context: ./server
       dockerfile: Dockerfile
-      context: "./server"
     environment:
-      - PGUSER=postgres
-      - PGHOST=postgres
-      - PGDATABASE=postgres
-      - PGPASSWORD=postgres_password
-      - PGPORT=5432
+      PGUSER: postgres
+      PGHOST: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: postgres_password
+      PGPORT: 5432
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    restart: always
+
   client:
     build:
-      dockerfile: Dockerfile
       context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: always
+
+volumes:
+  postgres_data:
