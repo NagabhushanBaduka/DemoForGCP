@@ -10,17 +10,14 @@ services:
       - client
     restart: always
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./nginx
     ports:
-      - "3000:80"
+      - "80:80"
   api:
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: "./server"
-    volumes:
-      - /app/node_modules
-      - ./server:/app
     environment:
       - PGUSER=postgres
       - PGHOST=postgres
@@ -28,14 +25,6 @@ services:
       - PGPASSWORD=postgres_password
       - PGPORT=5432
   client:
-    stdin_open: true
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - DANGEROUSLY_DISABLE_HOST_CHECK=true
-      - NODE_OPTIONS=--openssl-legacy-provider
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
